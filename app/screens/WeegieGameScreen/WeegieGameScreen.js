@@ -1,5 +1,5 @@
 import React from 'react'
-import { Text, View, ScrollView } from 'react-native'
+import { Text, View, ScrollView, Alert } from 'react-native'
 import PropTypes from 'prop-types'
 import { CheckBox } from 'react-native-elements'
 import { connect } from 'react-redux'
@@ -24,60 +24,69 @@ class WeegieGame extends React.Component {
       headerTitleStyle: { color: primaryColor },
       headerTintColor: primaryColor
     }
-  };
+  }
 
   state = {
-    checked: 'a',
+    checked: '',
     question: [],
     open: true,
     dataIndex: 0,
-    isAnswerScreen: false
-  };
+    isAnswerScreen: false,
+    asnwer: ''
+  }
 
   componentDidMount () {
     this.props.onGetWeegieQuestions()
     const { cities, cityId } = this.props
-    const { primary_color: primaryColor, secondary_color: secondaryColor } = cities.filter(city => city.city_id === cityId)[0]
+    const {
+      primary_color: primaryColor,
+      secondary_color: secondaryColor
+    } = cities.filter(city => city.city_id === cityId)[0]
     this.props.navigation.setParams({ primaryColor, secondaryColor })
   }
 
   handleNextQuestion = e => {
     const data = this.props.WeegieGameQuestions
-    const { dataIndex, checked } = this.state
-    const answer = checked
+    const { dataIndex, answer } = this.state
     const title = data[dataIndex].question_id
-
     this.state.question.push({ title, answer })
-
-    e.preventDefault()
-    if (dataIndex <= 12) {
-      this.setState({
-        dataIndex: dataIndex + 1
+    const { checked } = this.state
+    if (checked === '') {
+      Alert.alert('Opss!', 'Please Choose an Answer.', [{ text: 'OK' }], {
+        cancelable: false
       })
     } else {
-      const { question } = this.state
-      this.props.onGetWeegieAnswers(question).then(() => {
-        this.setState({ open: false, isAnswerScreen: true })
-      })
+      e.preventDefault()
+      if (dataIndex <= 12) {
+        this.setState({
+          dataIndex: dataIndex + 1,
+          checked: ''
+        })
+      } else {
+        const { question } = this.state
+        this.props.onGetWeegieAnswers(question).then(() => {
+          this.setState({ open: false, isAnswerScreen: true })
+        })
+      }
     }
-  };
+  }
 
   handleOpen = () => {
     this.setState({ open: true })
-  };
+  }
 
   resetGame = () =>
     this.setState({
-      checked: 'a',
+      checked: '',
       question: [],
       open: true,
       dataIndex: 0,
       isAnswerScreen: false
-    });
+    })
 
   handleCheckBox = value => {
-    this.setState({ checked: value })
-  };
+    this.setState({ checked: value, answer: value })
+  }
 
   showGame = data => {
     if (data.length > 0) {
@@ -85,7 +94,10 @@ class WeegieGame extends React.Component {
       const question = data[dataIndex]
       const questionNum = dataIndex + 1
       const { cities, cityId } = this.props
-      const { primary_color: primaryColor, secondary_color: secondaryColor } = cities.filter(city => city.city_id === cityId)[0]
+      const {
+        primary_color: primaryColor,
+        secondary_color: secondaryColor
+      } = cities.filter(city => city.city_id === cityId)[0]
       return (
         <View styles={styles.content}>
           <Text style={[styles.question, { color: secondaryColor }]}>
@@ -98,7 +110,10 @@ class WeegieGame extends React.Component {
               onPress={() => {
                 this.handleCheckBox('a')
               }}
-              containerStyle={{ backgroundColor: primaryColor, borderColor: primaryColor }}
+              containerStyle={{
+                backgroundColor: primaryColor,
+                borderColor: primaryColor
+              }}
               uncheckedColor={secondaryColor}
               textStyle={styles.label}
             />
@@ -110,7 +125,10 @@ class WeegieGame extends React.Component {
               onPress={() => {
                 this.handleCheckBox('b')
               }}
-              containerStyle={{ backgroundColor: primaryColor, borderColor: primaryColor }}
+              containerStyle={{
+                backgroundColor: primaryColor,
+                borderColor: primaryColor
+              }}
               uncheckedColor={secondaryColor}
               textStyle={styles.label}
             />
@@ -122,7 +140,10 @@ class WeegieGame extends React.Component {
               onPress={() => {
                 this.handleCheckBox('c')
               }}
-              containerStyle={{ backgroundColor: primaryColor, borderColor: primaryColor }}
+              containerStyle={{
+                backgroundColor: primaryColor,
+                borderColor: primaryColor
+              }}
               uncheckedColor={secondaryColor}
               textStyle={styles.label}
               value='c'
@@ -135,7 +156,10 @@ class WeegieGame extends React.Component {
               onPress={() => {
                 this.handleCheckBox('d')
               }}
-              containerStyle={{ backgroundColor: primaryColor, borderColor: primaryColor }}
+              containerStyle={{
+                backgroundColor: primaryColor,
+                borderColor: primaryColor
+              }}
               uncheckedColor={secondaryColor}
               textStyle={styles.label}
               value='c'
@@ -155,21 +179,24 @@ class WeegieGame extends React.Component {
         </View>
       )
     }
-  };
+  }
 
   renderAnswers = data => {
     const { cities, cityId } = this.props
-    const { primary_color: primaryColor, secondary_color: secondaryColor } = cities.filter(city => city.city_id === cityId)[0]
+    const {
+      primary_color: primaryColor,
+      secondary_color: secondaryColor
+    } = cities.filter(city => city.city_id === cityId)[0]
     return (
       <View>
         <Text style={styles.correctAnswers}>
-          Correct &#x2714; :{' '}
+          Correct ✔ :{' '}
           <Text style={{ color: 'green' }}>
             {data.weegieGameAnsers.correctAnswers}
           </Text>
         </Text>
         <Text style={styles.wrongAnswers}>
-          Wrong &#x2716; :{' '}
+          Wrong ✖ :{' '}
           <Text style={{ color: 'red' }}>
             {data.weegieGameAnsers.wrongAnswers}
           </Text>
@@ -203,7 +230,7 @@ class WeegieGame extends React.Component {
         </View>
       </View>
     )
-  };
+  }
 
   showGameContent = (data, WeegieGameAnswers) => {
     if (this.state.open) {
@@ -212,7 +239,10 @@ class WeegieGame extends React.Component {
       return this.renderAnswers(WeegieGameAnswers)
     }
     const { cities, cityId } = this.props
-    const { primary_color: primaryColor, secondary_color: secondaryColor } = cities.filter(city => city.city_id === cityId)[0]
+    const {
+      primary_color: primaryColor,
+      secondary_color: secondaryColor
+    } = cities.filter(city => city.city_id === cityId)[0]
     return (
       <View style={[styles.viewButton, { backgroundColor: secondaryColor }]}>
         <Button
@@ -224,13 +254,15 @@ class WeegieGame extends React.Component {
         </Button>
       </View>
     )
-  };
+  }
 
   render () {
     const data = this.props.WeegieGameQuestions
     const { WeegieGameAnswers } = this.props
     const { cities, cityId } = this.props
-    const { primary_color: primaryColor } = cities.filter(city => city.city_id === cityId)[0]
+    const { primary_color: primaryColor } = cities.filter(
+      city => city.city_id === cityId
+    )[0]
     return (
       <ScrollView style={[styles.container, { backgroundColor: primaryColor }]}>
         {this.showGameContent(data, WeegieGameAnswers)}
@@ -261,7 +293,4 @@ WeegieGame.propTypes = {
   onGetWeegieQuestions: PropTypes.func.isRequired
 }
 
-export default connect(
-  mapStateToProps,
-  dispatchToProps
-)(WeegieGame)
+export default connect(mapStateToProps, dispatchToProps)(WeegieGame)
