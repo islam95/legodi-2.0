@@ -1,4 +1,7 @@
 FROM node:8-alpine
+
+RUN adduser -D legodi && mkdir /app && chown -R legodi /app
+USER legodi
 WORKDIR  /app
 COPY . .
 RUN apk add make gcc g++ && apk add python
