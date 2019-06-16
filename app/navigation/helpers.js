@@ -54,7 +54,7 @@ export const generateNavigation = (routeStack, label, iosIcon, androidIcon) => {
           color={primaryColor}
           name={
             Platform.OS === 'ios'
-              ? `${iosIcon}${focused ? '' : ''}`
+              ? `${iosIcon}`
               : androidIcon
           }
         />
